@@ -277,6 +277,6 @@ title("Rocky Gyro Calibration Data: Determining the Pendulum Natural Frequency")
 [gyro_peak_values,gyro_peak_indices] = findpeaks(clean_gyrodata);
 gyro_peak_times = gyro_peak_indices.*samplingrate.*0.001;
 gyro_periods = diff(gyro_peak_times);
-%gyro_nf = 1/(mean(gyro_periods))
+gyro_nf = 1/(mean(gyro_periods))
 gyro_approx_T = mean(gyro_periods);
 L = ((0.5*gyro_approx_T/pi)^2)*9.81
