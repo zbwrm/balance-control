@@ -4,7 +4,7 @@ motordata = csvread("motortest2.csv");
 sample_rate = 100; % Hertz
 step = (1:80)' - 1;
 timestep = (step ./ sample_rate);
-<<<<<<< HEAD
+
 leftmotor = motordata(:,1);
 rightmotor = motordata(:,2);
 expfittype = fittype("a-a*exp(-b*x)");
@@ -22,32 +22,30 @@ plot(timestep, rightmotor(1:80,:),'.'); hold on
 rightfit = fit(timestep, rightmotor(1:80), expfittype);
 plot(rightfit); text(0.45,0.04,sprintf('a=%.3f, b=%.4f', rightfit.a, 1/rightfit.b)); 
 title("Right Motor"); ylabel("Motor Speed"); xlabel("Time (s)")
-=======
-leftmotor = motordata(1:80,1);
-rightmotor = motordata(1:80,2);
-
-x = linspace(0,0.8);
-k_left = 0.003068;
-tau_left = 0.05114;
-left_fit = 300*k_left*(1-exp(-x/tau_left));
-
-k_right = 0.002931;
-tau_right = 0.03569;
-right_fit = 300*k_right*(1-exp(-x/tau_right));
-
-hold on
-plot(x,left_fit, 'b')
-plot(x,right_fit, 'r')
-scatter(timestep, leftmotor(1:80), '.', 'b')
-scatter(timestep, rightmotor(1:80), '.', 'r')
-xlabel('time')
-ylabel('speed')
-legend('left', 'right', 'location', 'southeast')
-hold off
 
 
-
-
+% leftmotor = motordata(1:80,1);
+% rightmotor = motordata(1:80,2);
+% 
+% x = linspace(0,0.8);
+% k_left = 0.003068;
+% tau_left = 0.05114;
+% left_fit = 300*k_left*(1-exp(-x/tau_left));
+% 
+% k_right = 0.002931;
+% tau_right = 0.03569;
+% right_fit = 300*k_right*(1-exp(-x/tau_right));
+% 
+% hold on
+% plot(x,left_fit, 'b')
+% plot(x,right_fit, 'r')
+% scatter(timestep, leftmotor(1:80), '.', 'b')
+% scatter(timestep, rightmotor(1:80), '.', 'r')
+% xlabel('time')
+% ylabel('speed')
+% legend('left', 'right', 'location', 'southeast')
+% hold off
+ 
 %leftfit = fit(timestep, leftmotor(1:80), 'exp1');
 %plot(leftfit)
 
@@ -63,4 +61,3 @@ hold off
 %        b =     0.02332  (-0.00475, 0.05138)
 %        c =     -0.9107  (-0.9377, -0.8838)
 %        d =      -20.06  (-21.26, -18.86)
->>>>>>> 4681f55e4cb37fd62b1670d124de509dfdc89c5b

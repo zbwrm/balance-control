@@ -9,19 +9,19 @@ g = 9.8;
 
 
 % motor
-kmotor = .0025;
-tau = .05;
+kmotor = .92;
+tau = .0511;
 
 
 % pole = 10;
 % kp = pole*l;
 % ki = (kp^2/l + 4*g)/4;
 
-kp = 1000
-ki = 8800
+kp = 2.2104e+03
+ki = 1.9509e+03
 
 ji = 10
-jp = 10
+jp = 20
 
 ci = 1
 
