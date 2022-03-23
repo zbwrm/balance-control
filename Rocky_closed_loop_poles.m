@@ -23,10 +23,10 @@ close all;
 
 syms s a b l g Kp Ki Jp Ji Ci   % define symbolic variables
 
-Hvtheta = -s/l/(s^2-g/l);       % TF from velocity to angle of pendulum
+Hvtheta = -(s/l)/(s^2-g/l);       % TF from velocity to angle of pendulum
 
 K = Kp + Ki/s;                  % TF of the PI angle controller
-M = a*b/(s+a);                 % TF of motor
+M = (a/b)/(s+(1/b));                 % TF of motor
 %M = 1;                          % TF without motor  
 %  
 %closed loop transfer function from disturbance d(t)totheta(t)
@@ -38,7 +38,7 @@ pretty(simplify(Hcloop))       % to display the total transfer function
 % system parameters
 g = 9.81;
 l = 0.4529;  %effective length 
-a = 0.92;           %nomical motor parameters
+a = .92;           %nomical motor parameters
 b = 0.0511;        %nomical motor parameters
 
 Hcloop_sub = subs(Hcloop) % sub parameter values into Hcloop
@@ -46,9 +46,16 @@ Hcloop_sub = subs(Hcloop) % sub parameter values into Hcloop
 % specify locations of the target poles,
 % choose # based on order of Htot denominator
 % e.g., want some oscillations, want fast decay, etc. 
-p1 = -.5185 + 0.529*i
-p2 = -.5185 - 0.529*i
-p3 = -0.7407
+
+% not damped enough?
+p1 = -5*(.5185 + 0.529*i)
+p2 = -5*(.5185 - 0.529*i)
+
+% more damped
+% p1 = -10*(.667 + 0.323*i)
+% p2 = -10*(.667 - 0.323*i)
+
+p3 = -200*(0.7407)
 
 
 % target characteristic polynomial
