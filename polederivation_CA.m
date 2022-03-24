@@ -27,8 +27,8 @@ wn = 4.65;
 Htot_subbed = simplify(subs(Htot));
 
 % define target poles
-angle1 = 46;
-angle2 = 55;
+angle1 = 35;
+angle2 = 44;
 p1 = wn*(-cosd(angle1) + sind(angle1));
 p2 = wn*(-cosd(angle1) - sind(angle1));
 p3 = wn*(-cosd(angle2) + sind(angle2));
@@ -55,8 +55,11 @@ coeffs_denom = coeffs_denom/coeffs_denom(end);
 solutions = solve(coeffs_denom == coeffs_char,[Kp,Ki,Jp,Ji,Ci]);
 
 % display the solutions as doubles
+format shortG
 Kp = double(solutions.Kp)
 Ki = double(solutions.Ki)
 Jp = double(solutions.Jp)
 Ji = double(solutions.Ji)
 Ci = double(solutions.Ci)
+kmotor = b;
+tau = 1/a;
