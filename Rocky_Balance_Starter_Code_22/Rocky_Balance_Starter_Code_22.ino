@@ -68,7 +68,7 @@ Balboa32U4Buzzer buzzer;
 Balboa32U4ButtonA buttonA;
 
 
-#define FIXED_ANGLE_CORRECTION (0.27)  // ***** Replace the value 0.25 with the value you obtained from the Gyro calibration procedure
+#define FIXED_ANGLE_CORRECTION (0.275)  // ***** Replace the value 0.25 with the value you obtained from the Gyro calibration procedure
 
 
 
@@ -85,14 +85,111 @@ void BalanceRocky()
 {
 
     // **************Enter the control parameters here
+//35 and 44 - chris code
+//    float Kp =2129.9;
+//    float Ki =9944.6;
+//    float Jp =439.16;
+//    float Ji =-863.51;
+//    float Ci =-466.36;
 
-    float Kp =1526.6;
-    float Ki =7127.1;
-    float Jp =402.17;
-    float Ji =-256;
-    float Ci =-25.32;
+// Poles from Aydin's simulink
+//    float Kp =15000;
+//    float Ki =2000;
+//    float Jp =1;
+//    float Ji =10;
+//    float Ci =50;
 
-    float v_c_R, v_c_L;   
+//Poles from chris code - angles set to 30 & 35 degrees
+//    float Kp =1992.7;
+//    float Ki =9303.7;
+//    float Jp = 431.19;
+//    float Ji =-721.95;
+//    float Ci = -362.76;
+
+//Poles from angle code + 0.05 offset on smaller angle (20 degrees, regular 35 degree angle)
+//    float Kp =3062.7;
+//    float Ki =14300;
+//    float Jp =455.65;
+//    float Ji =-2222.7;
+//    float Ci =-2325.9;
+
+//poles from angle code with corrected imaginary poles (0 offset, angles 25 and 35)
+//    float Kp =2865.2;
+//    float Ki =13377;
+//    float Jp = 439.16;
+//    float Ji =-2030.5;
+//    float Ci =-2121.3;
+
+//same angle as above, offset 0.3
+//     float Kp =3790.4;
+//     float Ki =17697;
+//     float Jp =498.5;
+//     float Ji =-3067;
+//     float Ci =-3465.7;
+// a1 35 a2 25 offset 0.05
+//    float Kp =5000;
+//    float Ki =14054;
+//    float Jp =449.05;
+//    float Ji =-2188.2;
+//    float Ci =-2318.8; 
+//a1 35 a2 25 offset 0.025
+//    float Kp =2937.1;
+//    float Ki =13713;
+//    float Jp =444.1;
+//    float Ji =-2108.6;
+//    float Ci =-2218.7;
+//a1 25 a2 15 offset 0.0 (code without i)
+//    float Kp =3066.4;
+//    float Ki =14317;
+//    float Jp =473.14;
+//    float Ji =-2070.9;
+//    float Ci =-1921.5;
+//a1 25 a2 15 offset 0 code with i
+//    float Kp =3096.3;
+//    float Ki =14457;
+//    float Jp =468.19;
+//    float Ji =-2164.4;
+//    float Ci =-2121.3;
+// integer working poles
+//    float Kp =2740.3;
+//    float Ki =12796;
+//    float Jp =445.61;
+//    float Ji =-1775.8;
+//    float Ci =-1658.8;
+
+// 25 35 0 no imaginary component
+//    float Kp =2161.1;
+//    float Ki =10090;
+//    float Jp =430.04;
+//    float Ji =-978.71;
+//    float Ci =-570.42;
+
+//25 35 0 wn = 5
+//    float Kp =2894.6;
+//    float Ki =14473;
+//    float Jp =472.29;
+//    float Ji =-2366.9;
+//    float Ci =-2658.9;  
+//rocky11 motors + wn = 5 + poles at 25 35 +0
+    float Kp =5818.9;
+    float Ki =29095;
+    float Jp =950.15;
+    float Ji =-4758.2;
+    float Ci =-5345.2;
+//rocky11 motors + wn = 4.75 + poles at 25 35 +0
+//    float Kp =5818.9;
+//    float Ki =27640;
+//    float Jp =902.57;
+//    float Ji =-4294.3;
+//    float Ci =-4582.8;
+//rocky11 motors + wn = 5 + poles at 35 44 +0
+//    float Kp =5248.2;
+//    float Ki =26241;
+//    float Jp =870.2;
+//    float Ji =-4358.4;
+//    float Ci =-5345.2;
+    
+    float v_c_R, v_c_L; 
     float v_d = 0; // this is the desired speed produced by the angle controller
 
 
@@ -115,8 +212,8 @@ void BalanceRocky()
   // right to left. This helps ensure that the Left and Right motors are balanced
 
   // *** enter equations for input signals for v_c (left and right) in terms of the variables available ****
-    v_c_R = v_d - Jp*measured_speedR - Ji*distLeft_m - Ci*dist_accum;
-    v_c_L = v_d - Jp*measured_speedL - Ji*distRight_m - Ci*dist_accum;
+    v_c_R = (v_d - Jp*measured_speedR - Ji*distLeft_m - Ci*dist_accum);
+    v_c_L = (v_d - Jp*measured_speedL - Ji*distRight_m - Ci*dist_accum);
 
     // save desired speed for debugging
     desSpeedL = v_c_L;
@@ -139,8 +236,8 @@ void BalanceRocky()
 void setup()
 {
   // Uncomment these lines if your motors are reversed.
-  // motors.flipLeftMotor(true);
-  // motors.flipRightMotor(true);
+//   motors.flipLeftMotor(true);
+//   motors.flipRightMotor(true);
 
   Serial.begin(9600);
   prev_time = 0;
