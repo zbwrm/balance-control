@@ -1,110 +1,82 @@
-% Rocky_closed_loop_poles.m
-%
-% 1) Symbolically calculates closed loop transfer function of PI disturbannce
-% rejection control system for Rocky. 
-% Currently no motor model (M =1).Placeholder for motor model (1st order TF)
-%
-% 2) Specify location of (target)poles based on desired reponse. The number of
-% poles = denominator polynomial of closed loop TF
-%
-% 3) Extract the closed loop denomiator poly and set = polynomial of target
-% poles
-%
-% 4) Solve for Ki and Kp to match coefficients of polynomials. In general,
-% this will be underdefined and will not be able to place poles in exact
-% locations. 
-%
-% 5) Plot impulse response to see closed-loop behavior. 
-%
-% based on code by SG. last modified 3/12/21 CL
+% defind syms
+% values
+syms s a b l g Kp Ki Jp Ji Ci
 
-clear all; 
-close all;
+% TF from velocity to angle of inverted pendlum
+Hvtheta = -(s/l)/(s^2-(g/l));
+% TF of angle controller
+K = Kp + Ki/s;
+% TF of the controller around the motor
+J = Jp + Ji/s + Ci/(s^2);
+% TF of motor
+M = (a*b)/(s+a);
+% TF of motor and feedback controller around it
+Md = M/(1+M*J);
 
-syms s a b l g Kp Ki Jp Ji Ci   % define symbolic variables
+% Total TF function
+Htot = 1/(1-Hvtheta*Md*K);
 
-Hvtheta = -(s/l)/(s^2-g/l);       % TF from velocity to angle of pendulum
-
-K = Kp + Ki/s;                  % TF of the PI angle controller
-M = (a/b)/(s+(1/b));                 % TF of motor
-%M = 1;                          % TF without motor  
-%  
-%closed loop transfer function from disturbance d(t)totheta(t)
-Hcloop = 1/(1-Hvtheta*M*K)  
-
-pretty(simplify(Hcloop))       % to display the total transfer function
-
-% Substitute parameters and solve
 % system parameters
 g = 9.81;
-l = 0.4529;  %effective length 
-a = .92;           %nomical motor parameters
-b = 0.0511;        %nomical motor parameters
+a = (0.0325+0.0371)/2;
+b = (0.69+0.654)/2;
+wn = 5;
+l = g/(wn^2);
 
-Hcloop_sub = subs(Hcloop) % sub parameter values into Hcloop
+% sub in parameter values
+Htot_subbed = simplify(subs(Htot));
 
-% specify locations of the target poles,
-% choose # based on order of Htot denominator
-% e.g., want some oscillations, want fast decay, etc. 
+% define target poles
+angle1 = 44;
+angle2 = 35;
 
-% not damped enough?
-p1 = -5*(.5185 + 0.529*i)
-p2 = -5*(.5185 - 0.529*i)
+real_offset = 0.0;
 
-% more damped
-% p1 = -10*(.667 + 0.323*i)
-% p2 = -10*(.667 - 0.323*i)
+p1 = wn*(-cosd(angle1) + i*sind(angle1));
+p2 = wn*(-cosd(angle1) - i*sind(angle1));
+p3 = wn*(-cosd(angle2) - real_offset+ i*sind(angle2));
+p4 = wn*(-cosd(angle2) - real_offset - i*sind(angle2));
+p5 = -wn;
 
-p3 = -200*(0.7407)
+%{
+p1 = wn*(-cosd(angle1) + sind(angle1));
+p2 = wn*(-cosd(angle1) - sind(angle1));
+p1 = wn*(-cosd(angle2) - real_offset + sind(angle2));
+p2 = wn*(-cosd(angle2) - real_offset - sind(angle2));
+p5 = -wn;
+%}
+% define target characterisitic polynomial
+%{
+p1 = -4 + 2*i;
+p2 = -4 - 2*i;
+p3 = -4 + i;
+p4 = -4 - i;
+p5 = -5;
+%}
+char_poly = (s-p1)*(s-p2)*(s-p3)*(s-p4)*(s-p5);
 
+% find coeffs of char polynomial denom
+coeffs_char = coeffs(char_poly,s);
 
-% target characteristic polynomial
-% if motor model (TF) is added, order of polynomial will increases
-tgt_char_poly = (s-p1)*(s-p2)*(s-p3)
+% get denominator of Htot_subbed
+[~, denom] = numden(Htot_subbed);
 
-% get the denominator from Hcloop_sub
-[n d] = numden(Hcloop_sub)
+% find coefficients of the denom
+coeffs_denom = coeffs(denom,s);
 
-% find the coefficients of the denominator polynomial TF
-coeffs_denom = coeffs(d, s)
+% divide out coeff of highest power term
+coeffs_denom = coeffs_denom/coeffs_denom(end);
 
-% divide though the coefficient of the highest power term
-coeffs_denom = coeffs(d, s)/(coeffs_denom(end))
+% solve the system of equations setting the coefficients of the polunomial
+% in the target to the actual polynomial
+solutions = solve(coeffs_denom == coeffs_char,[Kp,Ki,Jp,Ji,Ci]);
 
-% find coefficients of the target charecteristic polynomial
-coeffs_tgt = coeffs(tgt_char_poly, s)
-
-% solve the system of equations setting the coefficients of the
-% polynomial in the target to the actual polynomials
-solutions = solve(coeffs_denom(1:2) == coeffs_tgt(1:2),  Kp, Ki)
-
-% display the solutions as double precision numbers
+% display the solutions as doubles
+format shortG
 Kp = double(solutions.Kp)
 Ki = double(solutions.Ki)
-
-% Location of the poles of the closed-loop TF.
-% NOTE there are only 2 unknowns but 3 polynomial coefficients so 
-% the problem is underdetermined and the closed loop poles don't exact
-% match the target poles. 
-% use trial-and-error to tune response
-closed_loop_poles = vpa (roots(subs(coeffs_denom)), 4)
-
-% Plot impulse response of closed-loop system
-    TFstring = char(subs(Hcloop));
-    % Define 's' as transfer function variable
-    s = tf('s');
-    % Evaluate the expression
-    eval(['TFH = ',TFstring]);
-    figure (1)
-    impulse(TFH);   %plot the impulse reponse
-    figure(2)
-    step(TFH)
-    
-    
-
-
-
-
-
-
-
+Jp = double(solutions.Jp)
+Ji = double(solutions.Ji)
+Ci = double(solutions.Ci)
+kmotor = b;
+tau = 1/a;
