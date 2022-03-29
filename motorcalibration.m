@@ -1,5 +1,5 @@
 clear all;
-motordata = csvread("rocky11motor_2.csv");
+motordata = csvread("data/rocky11motor_2.csv");
 
 sample_rate = 100; % Hertz
 step = (1:80)' - 1;
